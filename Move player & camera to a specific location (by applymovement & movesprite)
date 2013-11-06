@@ -1,0 +1,168 @@
+//This version uses applymovement on the camera, and instead moves the player instantly to the specified location
+//it loops until the camera is at the location specified in the values of 0x8002 (x) and 0x8003 (y)
+//the target X and Y are set as one of a random 9 in @getRandomXY
+//the location the player is moved to is also set in @getRandomYX
+//this version has the draw back that the position the player is moved to is static, but could still be quite useful
+//this has the advantage that there is no crazy movement of the player from looping applymovement on that player, and could be useful for giving the player an overview of the map
+
+
+#org @main
+lockall
+faceplayer
+getplayerpos 0x8000 0x8001
+call @getRandomXYandMovePlayer
+buffernumber 0x0 0x8000
+buffernumber 0x1 0x8001
+buffernumber 0x2 0x8002
+buffernumber 0x3 0x8003
+
+msgbox @display 0x4
+call @move
+release
+end
+
+#org @getRandomXYandMovePlayer
+random 0x9
+buffernumber 0x0 LASTRESULT
+msgbox @last 0x4
+compare LASTRESULT 0x0
+if b_= call @0
+compare LASTRESULT 0x1
+if b_= call @1
+compare LASTRESULT 0x2
+if b_= call @2
+compare LASTRESULT 0x3
+if b_= call @3
+compare LASTRESULT 0x4
+if b_= call @4
+compare LASTRESULT 0x5
+if b_= call @5
+compare LASTRESULT 0x6
+if b_= call @6
+compare LASTRESULT 0x7
+if b_= call @7
+compare LASTRESULT 0x8
+if b_= call @8
+return
+
+#org @0
+setvar 0x8002 0x2
+setvar 0x8003 0x2
+movesprite 0x00FF 0x0002 0x0002
+return
+
+#org @1
+setvar 0x8002 0x4
+setvar 0x8003 0x2
+movesprite 0x00FF 0x0004 0x0002
+return
+
+#org @2
+setvar 0x8002 0x6
+setvar 0x8003 0x2
+movesprite 0x00FF 0x0006 0x0002
+return
+
+#org @3
+setvar 0x8002 0x2
+setvar 0x8003 0x4
+movesprite 0x00FF 0x0002 0x0004
+return
+
+#org @4
+setvar 0x8002 0x4
+setvar 0x8003 0x4
+movesprite 0x00FF 0x0004 0x0004
+return
+
+#org @5
+setvar 0x8002 0x6
+setvar 0x8003 0x4
+movesprite 0x00FF 0x0006 0x0004
+return
+
+#org @6
+setvar 0x8002 0x2
+setvar 0x8003 0x6
+movesprite 0x00FF 0x0002 0x0006
+return
+
+#org @7
+setvar 0x8002 0x4
+setvar 0x8003 0x6
+movesprite 0x00FF 0x0004 0x0006
+return
+
+#org @8
+setvar 0x8002 0x6
+setvar 0x8003 0x6
+movesprite 0x00FF 0x0006 0x0006
+return
+
+#org @move
+getplayerpos 0x8000 0x8001
+comparevars 0x8000 0x8002
+if b_< call @right
+comparevars 0x8000 0x8002
+if b_> call @left
+comparevars 0x8001 0x8003
+if b_> call @up
+comparevars 0x8001 0x8003
+if b_< call @down
+
+getplayerpos 0x8000 0x8001
+comparevars 0x8000 0x8002
+if b_!= call @move
+comparevars 0x8001 0x8003
+if b_!= call @move
+return
+
+#org @right
+special 0x0116
+applymovement 0x7F @moveright
+waitmovement 0x0
+special 0x0117
+return
+
+#org @left
+special 0x0116
+applymovement 0x7F @moveleft
+waitmovement 0x0
+special 0x0117
+return
+
+#org @up
+special 0x0116
+applymovement 0x7F @moveup
+waitmovement 0x0
+special 0x0117
+return
+
+#org @down
+special 0x0116
+applymovement 0x7F @movedown
+waitmovement 0x0
+special 0x0117
+return
+
+#org @display
+= ([buffer1], [buffer2]) --> ([buffer3], [buffer3])
+
+#org @last
+= Random equals: [buffer1]
+
+#org @moveright
+#raw 0x18
+#raw 0xFE
+
+#org @moveleft
+#raw 0x17
+#raw 0xFE
+
+#org @moveup
+#raw 0x16
+#raw 0xFE
+
+#org @movedown
+#raw 0x15
+#raw 0xFE
